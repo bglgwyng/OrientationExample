@@ -2,6 +2,10 @@
 
 #import <React/RCTBundleURLProvider.h>
 
+#import "OrientationExample-Swift.h"
+
+#import <VisionCamera/FrameProcessorPluginRegistry.h>
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -10,6 +14,11 @@
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
+  
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"saveFrame"
+                                            withInitializer:^FrameSaverPlugin*(NSDictionary* options) {
+        return [[FrameSaverPlugin alloc] init];
+      }];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

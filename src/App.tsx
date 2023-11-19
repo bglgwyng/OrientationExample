@@ -26,7 +26,9 @@ import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import {Loading} from './Loading';
 import {cameraFormatFilters} from './consts';
 import {cameraPermissionAtom} from './cameraPermission';
+import {saveFrame} from './frameProcessors/saveFrame';
 import {useAtom} from 'jotai';
+import {useSharedValue} from 'react-native-worklets-core';
 
 function App(): JSX.Element {
   return (
@@ -61,15 +63,25 @@ const CameraPage = memo(() => {
   );
   const format = useCameraFormat(device, cameraFormatFilters);
 
-  const frameProcessor = useFrameProcessor(frame => {
-    'worklet';
-  }, []);
-
-  const camera = useRef<Camera>(null);
+  const shouldCaptureNextFrame = useSharedValue(false);
+  const captureNextFrame = useCallback(() => {
+    shouldCaptureNextFrame.value = true;
+  }, [shouldCaptureNextFrame]);
 
   const shoot = useCallback(async () => {
     CameraRoll.save((await camera.current!.takePhoto()).path);
   }, []);
+
+  const frameProcessor = useFrameProcessor(frame => {
+    'worklet';
+
+    if (shouldCaptureNextFrame.value) {
+      shouldCaptureNextFrame.value = false;
+      saveFrame(frame, {albumName: 'Debug'});
+    }
+  }, []);
+
+  const camera = useRef<Camera>(null);
 
   if (!device) return null;
 
@@ -88,6 +100,9 @@ const CameraPage = memo(() => {
       <SafeAreaView style={{flex: 1}}>
         <View style={{flex: 1}} />
         <View style={{flexDirection: 'row'}}>
+          <View style={{flex: 1}}>
+            <Button title="Capture" onPress={captureNextFrame} />
+          </View>
           <View style={{flex: 1}}>
             <Button title="Shoot" onPress={shoot} />
           </View>

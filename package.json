@@ -6,12 +6,20 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "start": "react-native start",
     "test": "jest"
   },
   "dependencies": {
+    "async-mutex": "^0.4.0",
+    "eslint-config-gwyng": "https://github.com/gwyng-dev/eslint-config-gwyng",
+    "jotai": "^2.5.1",
     "react": "18.2.0",
-    "react-native": "0.72.7"
+    "react-native": "0.72.7",
+    "react-native-reanimated": "^3.5.4",
+    "react-native-static-safe-area-insets": "^2.2.0",
+    "react-native-vision-camera": "^3.6.6",
+    "react-native-worklets-core": "^0.2.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

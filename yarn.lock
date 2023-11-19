@@ -1546,6 +1546,11 @@
     picocolors "^1.0.0"
     tslib "^2.6.0"
 
+"@react-native-camera-roll/camera-roll@^6.0.2":
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/@react-native-camera-roll/camera-roll/-/camera-roll-6.0.2.tgz#0caac34ddb9ea539d126d49eb2035a48d07d4656"
+  integrity sha512-8sL4IdE/fNrNMMfUOEnmAR7TJpPy6yQh2vabKUX5HCHCIh2/vxiuo5rp3c8rW4pD3OPW+Hz1iIstBGEMPWtlUg==
+
 "@react-native-community/cli-clean@11.3.10":
   version "11.3.10"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli-clean/-/cli-clean-11.3.10.tgz#70d14dd998ce8ad532266b36a0e5cafe22d300ac"

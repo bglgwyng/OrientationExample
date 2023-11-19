@@ -5,15 +5,24 @@
  * @format
  */
 
-import {StyleSheet, View} from 'react-native';
-import React, {Suspense, memo, useEffect} from 'react';
+import {Button, SafeAreaView, StyleSheet, View} from 'react-native';
+import React, {
+  Suspense,
+  memo,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+} from 'react';
 
 import {
   Camera,
+  CameraPosition,
   useCameraDevices,
   useCameraFormat,
   useFrameProcessor,
 } from 'react-native-vision-camera';
+import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import {Loading} from './Loading';
 import {cameraFormatFilters} from './consts';
 import {cameraPermissionAtom} from './cameraPermission';
@@ -42,24 +51,52 @@ const CameraPage = memo(() => {
     throw new Error('Camera permission is denied');
   }
 
-  const device = useCameraDevices().find(device => device.position === 'back');
+  const [position, flip] = useReducer(
+    (prev: CameraPosition) => (prev === 'back' ? 'front' : 'back'),
+    'back',
+  );
+
+  const device = useCameraDevices().find(
+    device => device.position === position,
+  );
   const format = useCameraFormat(device, cameraFormatFilters);
 
   const frameProcessor = useFrameProcessor(frame => {
     'worklet';
   }, []);
 
+  const camera = useRef<Camera>(null);
+
+  const shoot = useCallback(async () => {
+    CameraRoll.save((await camera.current!.takePhoto()).path);
+  }, []);
+
   if (!device) return null;
 
   return (
-    <Camera
-      device={device}
-      format={format}
-      pixelFormat="yuv"
-      style={StyleSheet.absoluteFill}
-      frameProcessor={frameProcessor}
-      isActive
-    />
+    <View style={{flex: 1}}>
+      <Camera
+        ref={camera}
+        device={device}
+        format={format}
+        pixelFormat="yuv"
+        style={StyleSheet.absoluteFill}
+        frameProcessor={frameProcessor}
+        photo
+        isActive
+      />
+      <SafeAreaView style={{flex: 1}}>
+        <View style={{flex: 1}} />
+        <View style={{flexDirection: 'row'}}>
+          <View style={{flex: 1}}>
+            <Button title="Shoot" onPress={shoot} />
+          </View>
+          <View style={{flex: 1}}>
+            <Button title="Flip" onPress={flip} />
+          </View>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 });
 

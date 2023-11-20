@@ -137,20 +137,20 @@ const CameraPage = memo(() => {
     [deviceOrientation, direction, nextDetectedFaces, shouldCaptureNextFrame],
   );
 
-  if (!device) return null;
-
   return (
     <View style={{flex: 1}}>
-      <Camera
-        ref={camera}
-        device={device}
-        format={format}
-        pixelFormat="yuv"
-        style={StyleSheet.absoluteFill}
-        frameProcessor={frameProcessor}
-        photo
-        isActive
-      />
+      {device && (
+        <Camera
+          device={device}
+          ref={camera}
+          format={format}
+          pixelFormat="yuv"
+          style={StyleSheet.absoluteFill}
+          frameProcessor={frameProcessor}
+          photo
+          isActive
+        />
+      )}
       <SafeAreaView style={{flex: 1}}>
         <View style={{flex: 1}} />
         <View style={{flexDirection: 'row'}}>

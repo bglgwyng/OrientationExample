@@ -1,8 +1,8 @@
-import {ExifOrientation, compose, inverse} from '../exifOrientation';
+import {ExifOrientation, compose, inverse} from '../utils/exifOrientation';
 import {Frame, VisionCameraProxy} from 'react-native-vision-camera';
 import {Platform} from 'react-native';
-import {applyToRect} from '../matrix3x3';
-import {transformBy, transformTo} from '../frameInfo';
+import {applyToRect} from '../utils/matrix3x3';
+import {transformBy, transformTo} from '../utils/frameInfo';
 
 const plugin = VisionCameraProxy.initFrameProcessorPlugin('scanFaces')!;
 

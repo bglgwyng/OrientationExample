@@ -30,19 +30,19 @@ import {
   useFrameProcessor,
 } from 'react-native-vision-camera';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
-import {Loading} from './Loading';
+import {Loading} from './components/Loading';
 import {cameraFormatFilters} from './consts';
-import {cameraPermissionAtom} from './cameraPermission';
-import {getFrameInfo} from './frameInfo';
+import {cameraPermissionAtom} from './atoms/cameraPermissionAtom';
+import {getFrameInfo} from './utils/frameInfo';
 import {runOnJS} from 'react-native-reanimated';
 import {saveFrame} from './frameProcessors/saveFrame';
 import {scanFaces} from './frameProcessors/scanFaces';
 import {useAtom} from 'jotai';
 import {useSharedValue} from 'react-native-worklets-core';
-import BoundingBox from './BoundingBox';
+import BoundingBox from './components/BoundingBox';
 import FaceTracker, {TrackedFace} from './FaceTracker';
-import useOrientationEffect from './useOrientationEffect';
-import useRunInJsCallback from './useRunInJsCallback';
+import useOrientationEffect from './hooks/useOrientationEffect';
+import useRunInJsCallback from './hooks/useRunInJsCallback';
 
 function App(): JSX.Element {
   return (

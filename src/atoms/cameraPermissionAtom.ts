@@ -1,6 +1,6 @@
 import {Camera} from 'react-native-vision-camera';
 import {atom} from 'jotai';
-import permissionRequestMutex from './permissionRequestMutex';
+import permissionRequestMutex from '../utils/permissionRequestMutex';
 
 export const cameraPermissionAtom = atom(
   get => get(baseAtom),

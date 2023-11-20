@@ -5,8 +5,8 @@ import {
   makeMutable,
   withTiming,
 } from 'react-native-reanimated';
-import {imageSize} from './frameInfo';
-import {mirror, resize} from './reframes';
+import {imageSize} from './utils/frameInfo';
+import {mirror, resize} from './utils/reframes';
 
 export class TrackedFace {
   trackingId: string;

@@ -25,7 +25,6 @@ import React, {
 
 import {
   Camera,
-  CameraPosition,
   useCameraDevices,
   useCameraFormat,
   useFrameProcessor,
@@ -35,12 +34,14 @@ import {Loading} from './Loading';
 import {cameraFormatFilters} from './consts';
 import {cameraPermissionAtom} from './cameraPermission';
 import {getFrameInfo} from './frameInfo';
+import {runOnJS} from 'react-native-reanimated';
 import {saveFrame} from './frameProcessors/saveFrame';
 import {scanFaces} from './frameProcessors/scanFaces';
 import {useAtom} from 'jotai';
 import {useSharedValue} from 'react-native-worklets-core';
 import BoundingBox from './BoundingBox';
 import FaceTracker, {TrackedFace} from './FaceTracker';
+import useOrientationEffect from './useOrientationEffect';
 import useRunInJsCallback from './useRunInJsCallback';
 
 function App(): JSX.Element {
@@ -69,13 +70,13 @@ const CameraPage = memo(() => {
 
   const camera = useRef<Camera>(null);
 
-  const [position, flip] = useReducer(
-    (prev: CameraPosition) => (prev === 'back' ? 'front' : 'back'),
+  const [direction, flip] = useReducer(
+    (prev: Direction) => (prev === 'back' ? 'front' : 'back'),
     'back',
   );
 
   const device = useCameraDevices().find(
-    device => device.position === position,
+    device => device.position === direction,
   );
   const format = useCameraFormat(device, cameraFormatFilters);
 
@@ -89,8 +90,8 @@ const CameraPage = memo(() => {
   }, []);
 
   const faceTracker = useMemo(
-    () => new FaceTracker(windowDimensions, position === 'front'),
-    [position, windowDimensions],
+    () => new FaceTracker(windowDimensions, direction === 'front'),
+    [direction, windowDimensions],
   );
 
   const [trackedFaces, setTrackedFaces] = useState<TrackedFace[]>([]);
@@ -103,6 +104,14 @@ const CameraPage = memo(() => {
   }, [faceTracker.observable, faceTracker.subject]);
 
   const nextDetectedFaces = useRunInJsCallback(faceTracker.next, [faceTracker]);
+
+  const [deviceOrientation, setDeviceOrientation] =
+    useState<DeviceOrientation>('portrait');
+  useOrientationEffect(newOrientation => {
+    'worklet';
+    runOnJS(setDeviceOrientation)(newOrientation);
+  });
+
   const frameProcessor = useFrameProcessor(
     frame => {
       'worklet';
@@ -112,8 +121,12 @@ const CameraPage = memo(() => {
         saveFrame(frame, {albumName: 'Debug'});
       }
 
-      const frameInfo = getFrameInfo(frame, 'back');
-      const orientedFrameInfo = getFrameInfo(frame, 'back');
+      const frameInfo = getFrameInfo(frame, direction);
+      const orientedFrameInfo = getFrameInfo(
+        frame,
+        direction,
+        deviceOrientation,
+      );
 
       // FIXME: `runAsync` is not working
       // runAsync(frame, () => {
@@ -121,7 +134,7 @@ const CameraPage = memo(() => {
       const faces = scanFaces(frame, frameInfo, orientedFrameInfo);
       nextDetectedFaces(faces, frameInfo);
     },
-    [nextDetectedFaces, shouldCaptureNextFrame],
+    [deviceOrientation, direction, nextDetectedFaces, shouldCaptureNextFrame],
   );
 
   if (!device) return null;

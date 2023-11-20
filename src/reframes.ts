@@ -25,7 +25,7 @@ export const resize = (mode: 'cover', content: Size, container: Size) => {
   }
 
   return {
-    adjustPoint(point: Point): Point {
+    adjustPoint(point: Point2D): Point2D {
       return {
         x: (point.x - offsetX) * widthRatio,
         y: (point.y - offsetY) * heightRatio,
@@ -50,7 +50,7 @@ export const mirror = (
 
   return direction === 'horizontal'
     ? {
-        adjustPoint(point: Point): Point {
+        adjustPoint(point: Point2D): Point2D {
           const {x, y} = point;
           return {x: container.width - x, y};
         },
@@ -62,7 +62,7 @@ export const mirror = (
         },
       }
     : {
-        adjustPoint(point: Point): Point {
+        adjustPoint(point: Point2D): Point2D {
           const {x, y} = point;
           return {x, y: container.height - y};
         },

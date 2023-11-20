@@ -52,7 +52,7 @@ export const rotate = (theta: number): Matrix3x3 => {
   return [cosTheta, -sinTheta, 0, sinTheta, cosTheta, 0, 0, 0, 1];
 };
 
-export const applyToPoint = (m: Matrix3x3, v: Point): Point => {
+export const applyToPoint = (m: Matrix3x3, v: Point2D): Point2D => {
   'worklet';
 
   const [m00, m01, m02, m10, m11, m12] = m;

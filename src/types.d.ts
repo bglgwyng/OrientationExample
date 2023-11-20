@@ -1,4 +1,5 @@
 import {ExifOrientation} from './utils/exifOrientation';
+import {Orientation} from 'react-native-vision-camera';
 
 declare global {
   type Size = {width: number; height: number};
@@ -17,8 +18,10 @@ declare global {
     timestamp: number;
   };
 
-  type Point = {x: number; y: number};
+  type Point2D = {x: number; y: number};
+  type Point3D = {x: number; y: number; z: number};
 
+  type DeviceOrientation = Orientation;
   type Direction = CameraPosition;
 
   interface Face {

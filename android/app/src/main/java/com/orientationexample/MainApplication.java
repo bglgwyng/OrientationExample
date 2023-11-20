@@ -8,7 +8,11 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
+import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry;
+import com.orientationexample.frameprocessors.FrameSaverPlugin;
+import com.orientationexample.frameprocessors.FaceDetectorPlugin;
 import java.util.List;
+import java.util.Map;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -58,5 +62,8 @@ public class MainApplication extends Application implements ReactApplication {
       DefaultNewArchitectureEntryPoint.load();
     }
     ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("saveFrame", options -> new FrameSaverPlugin(Map.of("context", this.getReactNativeHost())));
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("scanFaces", options -> new FaceDetectorPlugin(options));
   }
 }

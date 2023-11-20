@@ -1,5 +1,5 @@
-import { ActivityIndicator, View } from 'react-native';
-import React, { memo } from 'react';
+import {ActivityIndicator, View} from 'react-native';
+import React, {memo} from 'react';
 
 export const Loading = memo(() => (
   <View
@@ -9,6 +9,6 @@ export const Loading = memo(() => (
       justifyContent: 'center',
       backgroundColor: 'black',
     }}>
-    <ActivityIndicator size="large" style={{ alignSelf: 'center' }} />
+    <ActivityIndicator size="large" style={{alignSelf: 'center'}} />
   </View>
 ));

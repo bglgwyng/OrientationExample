@@ -20,6 +20,11 @@
         return [[FrameSaverPlugin alloc] init];
       }];
 
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"scanFaces"
+                                            withInitializer:^FaceDetectorPlugin*(NSDictionary* options) {
+        return [[FaceDetectorPlugin alloc] init];
+      }];
+
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 

@@ -5,14 +5,22 @@
  * @format
  */
 
-import {Button, SafeAreaView, StyleSheet, View} from 'react-native';
+import {
+  Button,
+  SafeAreaView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import React, {
   Suspense,
   memo,
   useCallback,
   useEffect,
+  useMemo,
   useReducer,
   useRef,
+  useState,
 } from 'react';
 
 import {
@@ -26,9 +34,14 @@ import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import {Loading} from './Loading';
 import {cameraFormatFilters} from './consts';
 import {cameraPermissionAtom} from './cameraPermission';
+import {getFrameInfo} from './frameInfo';
 import {saveFrame} from './frameProcessors/saveFrame';
+import {scanFaces} from './frameProcessors/scanFaces';
 import {useAtom} from 'jotai';
 import {useSharedValue} from 'react-native-worklets-core';
+import BoundingBox from './BoundingBox';
+import FaceTracker, {TrackedFace} from './FaceTracker';
+import useRunInJsCallback from './useRunInJsCallback';
 
 function App(): JSX.Element {
   return (
@@ -41,6 +54,7 @@ function App(): JSX.Element {
 }
 
 const CameraPage = memo(() => {
+  const windowDimensions = useWindowDimensions();
   const [cameraPermission, requestCameraPermission] =
     useAtom(cameraPermissionAtom);
 
@@ -52,6 +66,8 @@ const CameraPage = memo(() => {
   if (cameraPermission === 'denied') {
     throw new Error('Camera permission is denied');
   }
+
+  const camera = useRef<Camera>(null);
 
   const [position, flip] = useReducer(
     (prev: CameraPosition) => (prev === 'back' ? 'front' : 'back'),
@@ -72,16 +88,41 @@ const CameraPage = memo(() => {
     CameraRoll.save((await camera.current!.takePhoto()).path);
   }, []);
 
-  const frameProcessor = useFrameProcessor(frame => {
-    'worklet';
+  const faceTracker = useMemo(
+    () => new FaceTracker(windowDimensions, position === 'front'),
+    [position, windowDimensions],
+  );
 
-    if (shouldCaptureNextFrame.value) {
-      shouldCaptureNextFrame.value = false;
-      saveFrame(frame, {albumName: 'Debug'});
-    }
-  }, []);
+  const [trackedFaces, setTrackedFaces] = useState<TrackedFace[]>([]);
+  useEffect(() => {
+    const subscription = faceTracker.subject.subscribe(setTrackedFaces);
 
-  const camera = useRef<Camera>(null);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [faceTracker.observable, faceTracker.subject]);
+
+  const nextDetectedFaces = useRunInJsCallback(faceTracker.next, [faceTracker]);
+  const frameProcessor = useFrameProcessor(
+    frame => {
+      'worklet';
+
+      if (shouldCaptureNextFrame.value) {
+        shouldCaptureNextFrame.value = false;
+        saveFrame(frame, {albumName: 'Debug'});
+      }
+
+      const frameInfo = getFrameInfo(frame, 'back');
+      const orientedFrameInfo = getFrameInfo(frame, 'back');
+
+      // FIXME: `runAsync` is not working
+      // runAsync(frame, () => {
+      //   'worklet';
+      const faces = scanFaces(frame, frameInfo, orientedFrameInfo);
+      nextDetectedFaces(faces, frameInfo);
+    },
+    [nextDetectedFaces, shouldCaptureNextFrame],
+  );
 
   if (!device) return null;
 
@@ -111,10 +152,12 @@ const CameraPage = memo(() => {
           </View>
         </View>
       </SafeAreaView>
+      {trackedFaces.map(face => (
+        <BoundingBox key={face.trackingId} bounds={face.animatedBounds} />
+      ))}
     </View>
   );
 });
 
 const styles = StyleSheet.create({});
-
 export default App;
